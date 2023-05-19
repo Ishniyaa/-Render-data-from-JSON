@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Directory</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #searchContainer {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #searchName {
+            padding: 5px;
+            width: 200px;
+        }
+
+        #employeesContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .employeeCard {
+            width: 300px;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .employeeName {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .employeeDesignation {
+            margin-bottom: 5px;
+        }
+
+        .employeeSkills {
+            margin-bottom: 10px;
+        }
+
+        .projectTable {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .projectTable th,
+        .projectTable td {
+            padding: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .projectTable th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Employee Directory</h1>
+
+    <div id="searchContainer">
+        <input type="text" id="searchName" placeholder="Search by name" />
+    </div>
+
+    <div id="employeesContainer"></div>
+
+    <script>
+        // Fetch JSON data from the specified source
+        fetch('https://raw.githubusercontent.com/dixitsoham7/dixitsoham7.github.io/main/index.json')
+            .then(response => response.json())
+            .then(jsonData => {
+                renderEmployees(jsonData);
+            })
+            .catch(error => {
+                console.error('Error fetching JSON data:', error);
+            });
+
+        // Render employee directory
+        function renderEmployees(jsonData) {
+            const employeesContainer = document.getElementById("employeesContainer");
+            employeesContainer.innerHTML = "";
+
+            const searchName = document.getElementById("searchName").value.toLowerCase();
+
+            jsonData.employees.forEach(employee => {
+                if (!employee.name || !employee.designation) {
+                    return;
+                }
+
+                if (searchName && !employee.name.toLowerCase().includes(searchName)) {
+                    return;
+                }
+
+                const employeeCard = document.createElement("div");
+                employeeCard.classList.add("employeeCard");
+
+                const employeeName = document.createElement("div");
+                employeeName.classList.add("employeeName");
+                employeeName.textContent = employee.name;
+
+                const employeeDesignation = document.createElement("div");
+                employeeDesignation.classList.add("employeeDesignation");
+                employeeDesignation.textContent = employee.designation;
+
+                const employeeSkills = document.createElement("div");
+                employeeSkills.classList.add("employeeSkills");
+                employeeSkills.textContent = "Skills: " + employee.skills.join(", ");
+
+                const projectTable = document.createElement("table");
+                projectTable.classList.add("projectTable");
+
+                const tableHeader = document.createElement("tr");
+                const thName = document.createElement("th");
+                thName.textContent = "Project Name";
+                const thDescription = document.createElement("th");
+                thDescription.textContent = "Description";
+                const thTeam = document.createElement("th");
+                thTeam.textContent = "Team";
+                const thTasks = document.createElement("th");
+                thTasks.textContent = "Tasks";
+
+                tableHeader.appendChild(thName);
+                tableHeader.appendChild(thDescription);
+                tableHeader.appendChild(thTeam);
+                tableHeader.appendChild(thTasks);
+                projectTable.appendChild(tableHeader);
+
+                employee.projects.forEach(project => {
+                    const tableRow = document.createElement("tr");
+                    const tdName = document.createElement("td");
+                    tdName.textContent = project.name;
+                    const tdDescription = document.createElement("td");
+                    tdDescription.textContent = project.description;
+                    const tdTeam = document.createElement("td");
+                    tdTeam.textContent = project.team.map(member => member.name).join(", ");
+                    const tdTasks = document.createElement("td");
+                    tdTasks.textContent = project.tasks.length;
+
+                    tableRow.appendChild(tdName);
+                    tableRow.appendChild(tdDescription);
+                    tableRow.appendChild(tdTeam);
+                    tableRow.appendChild(tdTasks);
+                    projectTable.appendChild(tableRow);
+                });
+
+                employeeCard.appendChild(employeeName);
+                employeeCard.appendChild(employeeDesignation);
+                employeeCard.appendChild(employeeSkills);
+                employeeCard.appendChild(projectTable);
+
+                employeesContainer.appendChild(employeeCard);
+            });
+        }
+
+        // Event listener for search input
+        document.getElementById("searchName").addEventListener("input", () => {
+            renderEmployees(jsonData);
+        });
+    </script>
+</body>
+</html>
